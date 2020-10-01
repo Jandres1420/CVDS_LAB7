@@ -4,7 +4,7 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
   
 <mapper namespace="edu.eci.cvds.sampleprj.dao.mybatis.mappers.ClienteMapper">
-    <select parameterType="map" id="consultarClientes" resultMap="ClienteResult" >
+    <select parameterType="map" id="consultarCliente" resultMap="ClienteResult" >
     	select
 
         c.nombre,
@@ -32,7 +32,7 @@
     left join VI_ITEMS as i on ir.ITEMS_id=i.id
     left join VI_TIPOITEM as ti on i.TIPOITEM_id=ti.id
     </select>
-    <resultMap id="clienteResult" type="Cliente">
+    <resultMap id="ClienteResult" type="Cliente">
         <id property="documento" column="documento"/>
         <result property="nombre" column="nombre"/>
         <result property="telefono" column="telefono"/>

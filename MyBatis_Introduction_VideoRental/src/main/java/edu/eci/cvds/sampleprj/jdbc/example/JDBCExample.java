@@ -107,8 +107,21 @@ public class JDBCExample {
         //Sacar resultados del ResultSet
         //Llenar la lista y retornarla
         PreparedStatement names = null;
-        String string = "SELECT nombre,pedido_fk FROM ORD_PRODUCTOS,ORD_DETALLES_PEDIDO WHERE ORD_PRODUCTOS.codigo == ORD_DETALLES_PEDIDO.pedido_fk ORDER BY pedido_fk";
-
+        String producto,nPedido;
+        String sele = "SELECT nombre,pedido_fk FROM ORD_PRODUCTOS,ORD_DETALLES_PEDIDO WHERE ORD_PRODUCTOS.codigo == ORD_DETALLES_PEDIDO.pedido_fk ORDER BY pedido_fk";
+        try {
+            con.setAutoCommit(false);
+            names = con.prepareStatement(sele);
+            ResultSet resultado = names.executeQuery();
+            while (resultado.next()){
+                producto = resultado.getString("nombre");
+                nPedido = resultado.getString("pedido_fk");
+                np.add(producto);
+                np.add(nPedido);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
         return np;
     }
 
@@ -125,8 +138,22 @@ public class JDBCExample {
         //asignar parámetros
         //usar executeQuery
         //Sacar resultado del ResultSet
-        
-        return 0;
+        int total = 0;
+        PreparedStatement valor = null;
+        String sele = "SELECT SUM(precio*cantidad) FROM ORD_PEDIDOS OIN ORD_DETALLE_PEDIDO ON ORD_PEDIDOS.codigo=ORD_DETALLE_PEDIDO.pedido_fk JOIN ORD_PRODUCTOS ON ORD_PRODUCTOS.codigo=producto_fk WHERE ORD_PEDIDOS.codigo=?";
+        try {
+            valor = con.prepareStatement(sele);
+            valor.setInt(1,codigoPedido);
+            ResultSet resultado = valor.executeQuery();
+            while (resultado.next()){
+                total= resultado.getInt(1);
+            }
+            valor.close();
+            resultado.close();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return total;
     }
     
 
