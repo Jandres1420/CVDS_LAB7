@@ -28,7 +28,9 @@ import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-//import edu.eci.cvds.sampleprj.dao.mybatis.mappers.ClienteMapper;
+/*import edu.eci.cvds.sampleprj.dao.mybatis.mappers.ClienteMapper;*/
+
+import javax.swing.*;
 /**
  *
  * @author hcadavid
@@ -65,27 +67,24 @@ public class MyBatisExample {
         SqlSessionFactory sessionfact = getSqlSessionFactory();
 
         SqlSession sqlss = sessionfact.openSession();
-
-
         ClienteMapper cm=sqlss.getMapper(ClienteMapper.class);
+
+        System.out.println("--------------Consultando clientes -----------------------------------------------------------\n");
         System.out.println(cm.consultarClientes());
-        System.out.println("----------------------------");
-        System.out.println(cm.consultarCliente(5));
-        System.out.println("----------------------------");
-        //cm.agregarItemRentadoACliente(4,2 ,
-        //        new SimpleDateFormat("yyyy/MM/dd").parse("2019/09/28"),
-        //        new SimpleDateFormat("yyyy/MM/dd").parse("2019/10/28"));
-        //System.out.println(cm.consultarCliente(4));
-        ItemMapper im=sqlss.getMapper(ItemMapper.class);
-        //im.insertarItem(new Item(new TipoItem(1, "Videojuego" ),99,
-        //                "item99", "item99", new SimpleDateFormat("yyyy/MM/dd").parse("2019/09/28"),
-        //                99,"Digital","99"));
+        System.out.println("-------------Insertando a -700 el ItemRentado numero 0, con fechas especificas-------------------------------------------------------------\n");
+        //cm.agregarItemRentadoACliente(-700,4,Date.valueOf("2020-09-25"),Date.valueOf("2020-09-26"));//new SimpleDateFormat("yyyy/MM/dd").parse("2020/09/25")
+        System.out.println("-------------------------Consultando al cliente -700 ------------------------------------------\n");
+        System.out.println(cm.consultarCliente(-700));
+        System.out.println("-------------------------Realizando operaciones con item-----------------------------------\n");
+        System.out.println("-------------------------Consultando items-----------------------------------\n");
+        ItemMapper im = sqlss.getMapper(ItemMapper.class);
         System.out.println(im.consultarItems());
-        System.out.println("----------------------------");
-        System.out.println(im.consultarItem(66));
+        System.out.println("-------------------------Buscando el item de id 1 --------------------------------------\n");
+        System.out.println(im.consultarItem(1));
+        System.out.println("-------------------------Insertando un item con id 12345--------------------------------------------\n");
+
+
         sqlss.commit();
-
-
         sqlss.close();
 
     }
