@@ -31,7 +31,9 @@ import java.util.logging.Logger;
  * @author hcadavid
  */
 public class JDBCExample {
-    
+    private static final String SQL_INSERT_REGISTRAR_NUEVO_PRODUCTO = "INSERT INTO ORD_PRODUCTOS(codigo, nombre, precio) VALUES (?,?,?)";
+    private static final String SQL_SELECT_NOMBRES_PRODUCTOS_PEDIDOS = "SELECT nombre FROM ORD_PRODUCTOS WHERE codigo = ?";
+    private static final String SQL_SELECT_VALOR_TOTAL_PEDIDO = "SELECT SUM(cantidad*ORD_PRODUCTOS.precio) FROM ORD_DETALLE_PEDIDO,ORD_PRODUCTOS WHERE producto_fk = ORD_PRODUCTOS.codigo && pedido_fk = ?;";
     public static void main(String args[]){
         try {
             String url="jdbc:mysql://desarrollo.is.escuelaing.edu.co:3306/bdprueba";
@@ -54,7 +56,7 @@ public class JDBCExample {
                 System.out.println(nomprod);
             }
             System.out.println("-----------------------");
-            int suCodigoECI=2159581;
+            int suCodigoECI=2345678;
             registrarNuevoProducto(con, suCodigoECI, "Andrés Pico", 99999999);
             con.commit();
             con.close();
@@ -75,14 +77,31 @@ public class JDBCExample {
         //Crear preparedStatement
         //Asignar parámetros
         //usar 'execute'
-        PreparedStatement inproduct= null;
-        String in = "INSERT INTO ORD_PRODUCTOS VALUES (?,?,?);";
-        inproduct = con.prepareStatement(in);
-        inproduct.setInt(1,codigo);
-        inproduct.setString(2,nombre);
-        inproduct.setInt(3,precio);
-        inproduct.executeUpdate();
+        PreparedStatement st = null;
+
+        int filas = 0;
+
+        //con.getConnection();
+        st = con.prepareStatement(SQL_INSERT_REGISTRAR_NUEVO_PRODUCTO);
+        int index = 1; //Contador de columnas
+
+        st.setInt(index++, codigo);
+        st.setString(index++, nombre);
+        st.setInt(index++, precio);
+        System.out.println("Ejecutando query: " + SQL_INSERT_REGISTRAR_NUEVO_PRODUCTO);
+
+        filas = st.executeUpdate(); //Numero de filas afectadas
+        System.out.println("Número de filas insertadas: " + filas);
+
+
+
+        //Crear preparedStatement
+        //Asignar parámetros
+        //usar 'execute'
+
+
         con.commit();
+        //con.close();
     }
     
     /**
@@ -92,20 +111,34 @@ public class JDBCExample {
      * @return 
      */
     public static List<String> nombresProductosPedido(Connection con, int codigoPedido) throws SQLException {
-        List<String> np=new LinkedList<>();
         //Crear prepared statement
         //asignar parámetros
         //usar executeQuery
         //Sacar resultados del ResultSet
         //Llenar la lista y retornarla
 
-        String sele = "SELECT nombre\n"+"FROM ORD_DETALLE_PEDIDO JOIN ORD_PRODUCTOS ON pedido_fk = codigo WHERE pedido_fk =?";
-        PreparedStatement names = con.prepareStatement(sele);
-        names.setString(1,String.valueOf(codigoPedido));
-        ResultSet resultSet = names.executeQuery();
+        List<String> np=new LinkedList<>();
+        PreparedStatement st = null;
 
-        while (resultSet.next()){
-            np.add(resultSet.getString(1));
+        ResultSet rs = null;
+        String nombre = null;
+
+        try{
+
+            //con.getConnection();
+            st = con.prepareStatement(SQL_SELECT_NOMBRES_PRODUCTOS_PEDIDOS);
+            st.setInt(1, codigoPedido);
+            rs = st.executeQuery();
+
+            while(rs.next()){
+                nombre = rs.getString(1);
+                np.add(nombre);
+            }
+
+
+            //con.close();
+        }catch(SQLException e){
+            e.printStackTrace();
         }
 
         return np;
@@ -119,27 +152,36 @@ public class JDBCExample {
      * @return el costo total del pedido (suma de: cantidades*precios)
      */
     public static int valorTotalPedido(Connection con, int codigoPedido){
-        
+
         //Crear prepared statement
         //asignar parámetros
         //usar executeQuery
         //Sacar resultado del ResultSet
-        int total = 0;
-        PreparedStatement valor = null;
-        String sele = "SELECT SUM(precio*cantidad) FROM ORD_PEDIDOS JOIN ORD_DETALLE_PEDIDO ON ORD_PEDIDOS.codigo=ORD_DETALLE_PEDIDO.pedido_fk JOIN ORD_PRODUCTOS ON ORD_PRODUCTOS.codigo=producto_fk WHERE ORD_PEDIDOS.codigo=?";
-        try {
-            valor = con.prepareStatement(sele);
-            valor.setInt(1,codigoPedido);
-            ResultSet resultado = valor.executeQuery();
-            while (resultado.next()){
-                total= resultado.getInt(1);
+
+        PreparedStatement st = null;
+
+        ResultSet rs = null;
+        int valorTotal = 0;
+
+
+        try{
+
+            //con.getConnection();
+            st = con.prepareStatement(SQL_SELECT_VALOR_TOTAL_PEDIDO);
+            st.setInt(1, codigoPedido);
+            rs = st.executeQuery();
+
+            while(rs.next()){
+                valorTotal = rs.getInt(1);
             }
-            valor.close();
-            resultado.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+
+
+            //con.close();
+        }catch(SQLException e){
+            e.printStackTrace();
         }
-        return total;
+
+        return valorTotal;
     }
     
 
